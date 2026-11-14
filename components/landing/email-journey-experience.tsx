@@ -990,8 +990,6 @@ export default function App() {
   // ---------------------------------------------------------------------------
   useEffect(() => {
     const template = RECRUITER_EMAILS[emailIndex];
-    setToEmail(template.toEmail);
-    setSubject(template.subject);
 
     // Smoothly orient globe toward the current template's city while composing
     const targetY = -((template.lng + 180) * (Math.PI / 180)) + Math.PI - 0.35;
@@ -999,17 +997,11 @@ export default function App() {
     animStateRef.current.targetGlobeRot = { x: targetX, y: targetY };
     animStateRef.current.dest = template;
 
-    if (!isAutoLoop) {
-      setTypedBody(template.body);
-      setIsTyping(false);
-      return;
-    }
+    if (!isAutoLoop) return;
 
     // Start auto-typing character by character when in 'composing' stage
     if (stage !== 'composing') return;
 
-    setTypedBody('');
-    setIsTyping(true);
     let charIdx = 0;
     const fullText = template.body;
 
@@ -1049,7 +1041,12 @@ export default function App() {
 
     const nextTimer = window.setTimeout(() => {
       const nextIdx = (emailIndex + 1) % RECRUITER_EMAILS.length;
+      const nextTemplate = RECRUITER_EMAILS[nextIdx];
       setEmailIndex(nextIdx);
+      setToEmail(nextTemplate.toEmail);
+      setSubject(nextTemplate.subject);
+      setTypedBody('');
+      setIsTyping(true);
       setStage('composing');
       animStateRef.current.stage = 'composing';
       animStateRef.current.trailPoints = [];
@@ -1484,11 +1481,23 @@ export default function App() {
   };
 
   const handleManualSelectRecruiter = (idx: number) => {
+    const template = RECRUITER_EMAILS[idx];
     setEmailIndex(idx);
+    setToEmail(template.toEmail);
+    setSubject(template.subject);
+    setTypedBody(template.body);
+    setIsTyping(false);
+    setIsAutoLoop(false);
     setStage('composing');
     animStateRef.current.stage = 'composing';
     animStateRef.current.trailPoints = [];
     if (trailRef.current) trailRef.current.clear();
+  };
+
+  const pauseAutoLoopForEdit = () => {
+    setIsAutoLoop(false);
+    if (typedBody.length < currentTemplate.body.length) setTypedBody(currentTemplate.body);
+    setIsTyping(false);
   };
 
   return (
@@ -1528,7 +1537,7 @@ export default function App() {
                 type="text"
                 value={toEmail}
                 onChange={(e) => {
-                  setIsAutoLoop(false);
+                  pauseAutoLoopForEdit();
                   setToEmail(e.target.value);
                 }}
                 className="w-full bg-transparent text-[12.5px] font-normal text-slate-900 focus:outline-none truncate"
@@ -1560,7 +1569,7 @@ export default function App() {
                 type="text"
                 value={subject}
                 onChange={(e) => {
-                  setIsAutoLoop(false);
+                  pauseAutoLoopForEdit();
                   setSubject(e.target.value);
                 }}
                 className="w-full bg-transparent text-[12.5px] font-bold text-slate-900 focus:outline-none truncate"
@@ -1574,7 +1583,7 @@ export default function App() {
             <div ref={draftBodyRef} className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:thin]">
               {isAutoLoop ? (
                 <div
-                  onClick={() => setIsAutoLoop(false)}
+                  onClick={pauseAutoLoopForEdit}
                   title="Click anywhere to pause auto-loop and edit manually"
                   className="text-[12.5px] leading-[1.45] text-slate-800 whitespace-pre-wrap break-words font-normal cursor-text"
                 >

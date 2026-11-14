@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowUpRight, Menu } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button-link";
 
@@ -6,13 +7,14 @@ const links = [
   { label: "Features", href: "/features" },
   { label: "How it works", href: "/how-it-works" },
   { label: "About us", href: "/about" },
+  { label: "Workspace", href: "/dashboard" },
 ];
 
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#172b3212] bg-[#f1faee]/75 backdrop-blur-xl">
       <div className="mx-auto flex min-h-[68px] w-[min(1000px,calc(100%-48px))] items-center max-sm:min-h-0 max-sm:w-[calc(100%-32px)] max-sm:flex-wrap max-sm:py-2">
-        <a
+        <Link
           className="inline-flex w-fit items-center gap-2 text-[#172b32]"
           href="/"
           aria-label="Beaky home"
@@ -32,7 +34,7 @@ export function SiteHeader() {
           >
             Beaky
           </span>
-        </a>
+        </Link>
 
         <nav
           className="ml-auto mr-8 flex items-center justify-end gap-8 text-xs font-medium text-[#526368] max-sm:hidden"

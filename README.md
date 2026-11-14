@@ -1,5 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Supabase
+
+Authentication and user data use Supabase. Follow [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) to configure Google OAuth, add local environment variables, and apply the RLS-protected database migration.
+
 ## Getting Started
 
 First, run the development server:
