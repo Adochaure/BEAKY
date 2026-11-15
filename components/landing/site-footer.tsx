@@ -83,7 +83,7 @@ export function SiteFooter() {
 
         {/* Hairline Copyright Row */}
         <div className="flex flex-col sm:flex-row items-center justify-between border-t border-[#30291f14] py-6 text-[11px] text-[#81776b] gap-3">
-          <p>© {new Date().getFullYear()} Beaky. All rights reserved.</p>
+          <p>© 2026 Beaky. All rights reserved.</p>
           <p className="font-mono text-[10px] tracking-wider uppercase">
             Crafted for high-signal engineering careers
           </p>
