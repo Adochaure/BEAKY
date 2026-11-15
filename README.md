@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="https://beaky-gold.vercel.app/"><img src="https://img.shields.io/badge/Live%20Demo-beaky--gold.vercel.app-e63946?style=for-the-badge" alt="Live Demo" /></a>
+  <a href="https://adityachaure.xyz/vedio"><img src="https://img.shields.io/badge/Video%20Demo-Watch%20Walkthrough-FF0000?style=for-the-badge" alt="Video Demo" /></a>
   <img src="https://img.shields.io/badge/Next.js%2015-black?style=for-the-badge&logo=next.js" alt="Next.js 15" />
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />

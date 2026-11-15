@@ -15,6 +15,20 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
+  async redirects() {
+    return [
+      {
+        source: "/demo",
+        destination: "https://adityachaure.xyz/vedio",
+        permanent: false,
+      },
+      {
+        source: "/video",
+        destination: "https://adityachaure.xyz/vedio",
+        permanent: false,
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {

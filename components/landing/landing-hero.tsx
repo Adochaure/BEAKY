@@ -55,7 +55,9 @@ export function LandingHero() {
               />
             </ButtonLink>
             <ButtonLink
-              href="#demo"
+              href="https://adityachaure.xyz/vedio"
+              target="_blank"
+              rel="noopener noreferrer"
               variant="outline"
               size="small"
               className="group min-w-[108px]"
