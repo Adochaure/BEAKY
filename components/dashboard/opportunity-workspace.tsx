@@ -11,9 +11,11 @@ import {
   MapPin,
   Plus,
   Search,
+  Send,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { OutreachReview } from "@/components/dashboard/outreach-review";
 import { createClient } from "@/lib/supabase/client";
 import type { OpportunityStatus, OpportunityType } from "@/lib/supabase/database.types";
 type FilterStatus = "All opportunities" | OpportunityStatus;
@@ -269,6 +271,14 @@ export function OpportunityWorkspace() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState("");
   const [loadError, setLoadError] = useState(false);
+  const [selectedOutreachJob, setSelectedOutreachJob] = useState<{
+    guid: string;
+    title: string;
+    companyName: string;
+    excerpt?: string;
+    description?: string;
+    applicationLink: string;
+  } | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -571,7 +581,25 @@ export function OpportunityWorkspace() {
                           <span>{opportunity.type}</span>
                         </span>
                       </button>
-                      <div className="flex shrink-0 items-center gap-3 max-sm:flex-col max-sm:items-end max-sm:gap-2">
+                      <div className="flex shrink-0 items-center gap-2 max-sm:flex-wrap max-sm:justify-end">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedOutreachJob({
+                              guid: opportunity.id,
+                              title: opportunity.title,
+                              companyName: opportunity.company,
+                              description: opportunity.description,
+                              applicationLink: opportunity.url,
+                            });
+                          }}
+                          className="inline-flex items-center gap-1.5 rounded-[7px] bg-[#a92230] px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm transition hover:bg-[#8e1b26] active:translate-y-px"
+                          title="Draft & send cold email"
+                        >
+                          <Send size={11} />
+                          <span>Send Mail</span>
+                        </button>
                         <StatusPill status={opportunity.status} />
                         <span className="w-12 text-right text-[10px] text-[#9ba5a1] max-sm:hidden">
                           {formatDate(opportunity.createdAt)}
@@ -594,16 +622,35 @@ export function OpportunityWorkspace() {
                             ) : (
                               <p className="mt-2 text-xs text-[#98a39f]">No description added.</p>
                             )}
-                            {opportunity.url ? (
-                              <a
-                                href={opportunity.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-[#d83d48] transition hover:text-[#a92230]"
+                            <div className="mt-3.5 flex flex-wrap items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedOutreachJob({
+                                    guid: opportunity.id,
+                                    title: opportunity.title,
+                                    companyName: opportunity.company,
+                                    description: opportunity.description,
+                                    applicationLink: opportunity.url,
+                                  });
+                                }}
+                                className="inline-flex items-center gap-1.5 rounded-[8px] bg-[#a92230] px-3.5 py-1.5 text-[11px] font-semibold text-white shadow-sm transition hover:bg-[#8e1b26] active:translate-y-px"
                               >
-                                Open job posting <ArrowUpRight size={12} />
-                              </a>
-                            ) : null}
+                                <Send size={12} />
+                                <span>Find Recruiter &amp; Send Mail</span>
+                              </button>
+                              {opportunity.url ? (
+                                <a
+                                  href={opportunity.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 rounded-[8px] border border-[#dce3df] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#514a40] transition hover:text-[#a92230]"
+                                >
+                                  <span>Open job posting</span>
+                                  <ArrowUpRight size={11} />
+                                </a>
+                              ) : null}
+                            </div>
                           </div>
                           <label className="text-[10px] font-semibold text-[#718084]">
                             Update status
@@ -647,6 +694,17 @@ export function OpportunityWorkspace() {
 
       {showForm ? (
         <OpportunityForm onClose={() => setShowForm(false)} onSave={addOpportunity} />
+      ) : null}
+
+      {selectedOutreachJob ? (
+        <OutreachReview
+          job={selectedOutreachJob}
+          onClose={() => setSelectedOutreachJob(null)}
+          onSent={() => {
+            void updateStatus(selectedOutreachJob.guid, "Outreach");
+            setSelectedOutreachJob(null);
+          }}
+        />
       ) : null}
     </main>
   );

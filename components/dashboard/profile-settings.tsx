@@ -1,9 +1,33 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Check, FileText, LoaderCircle, Mail, Sparkles, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, FileText, Info, LoaderCircle, Sparkles, Upload } from "lucide-react";
 import type { CandidateProfile } from "@/lib/candidate-profile";
 import { createClient } from "@/lib/supabase/client";
+
+// Official Google Gmail 4-Color Vector Logo
+function GmailLogo({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path
+        fill="#4285f4"
+        d="M2.5 19.5h3.5v-8.25L2.5 8.5v11z"
+      />
+      <path
+        fill="#34a853"
+        d="M18 19.5h3.5v-11L18 11.25v8.25z"
+      />
+      <path
+        fill="#ea4335"
+        d="M18 4.5l-6 4.5-6-4.5a2 2 0 0 0-3.5 1.25V8.5l9.5 7.12 9.5-7.12V5.75A2 2 0 0 0 18 4.5z"
+      />
+      <path
+        fill="#fbbc04"
+        d="M18 11.25L12 15.75 6 11.25V19.5h12v-8.25z"
+      />
+    </svg>
+  );
+}
 
 function SettingSwitch({ checked, onChange, label }: { checked: boolean; onChange: (value: boolean) => void; label: string }) {
   return (
@@ -46,9 +70,16 @@ export function ProfileSettings({
   const [currentResumePath, setCurrentResumePath] = useState(resumePath);
   const [candidateProfile, setCandidateProfile] = useState(initialCandidateProfile);
   const [notifications, setNotifications] = useState(initialNotifications);
-  const [busy, setBusy] = useState<"resume" | "notifications" | "preview" | "analyze" | null>(null);
+  const [gmailConnected, setGmailConnected] = useState(false);
+  const [busy, setBusy] = useState<"resume" | "notifications" | "preview" | "analyze" | "connect_gmail" | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    // Check if user previously authorized Gmail Auto Send in this browser session
+    const saved = typeof window !== "undefined" && window.localStorage.getItem(`beaky_gmail_auth_${email}`);
+    if (saved === "true") setGmailConnected(true);
+  }, [email]);
 
   function reportError(value: string) {
     setMessage("");
@@ -136,6 +167,53 @@ export function ProfileSettings({
     } catch (caught) {
       setNotifications(!next);
       reportError(caught instanceof Error ? caught.message : "Could not update notification preferences.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function connectGmailForAutoSend() {
+    setBusy("connect_gmail");
+    setError("");
+    setMessage("");
+
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const tokenClient = window.google?.accounts?.oauth2;
+    if (!clientId || !tokenClient) {
+      setBusy(null);
+      reportError("Google Identity Services is initializing. Please try again in a few seconds.");
+      return;
+    }
+
+    try {
+      await new Promise<string>((resolve, reject) => {
+        const client = tokenClient.initTokenClient({
+          client_id: clientId,
+          scope: "openid email profile https://www.googleapis.com/auth/gmail.send",
+          callback: (response) => {
+            if (response.error || !response.access_token) {
+              reject(new Error(response.error_description || "Gmail connection was cancelled."));
+              return;
+            }
+            resolve(response.access_token);
+          },
+          error_callback: (err) => reject(new Error(err.message || "Google permission window could not open.")),
+        });
+        client.requestAccessToken({ hint: email, prompt: "consent" });
+      });
+
+      setGmailConnected(true);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(`beaky_gmail_auth_${email}`, "true");
+      }
+      setMessage("Gmail connected! Auto Send is now enabled for your outreach.");
+    } catch (caught) {
+      const msg = caught instanceof Error ? caught.message : String(caught);
+      if (msg.includes("access_denied") || msg.includes("verification")) {
+        reportError("Google OAuth is in developer Testing mode. To enable Auto Send, your email must be in Google Cloud Console 'Test users', or you can use 'Open in Gmail' to send without verification.");
+      } else {
+        reportError(msg || "Could not connect Gmail.");
+      }
     } finally {
       setBusy(null);
     }
@@ -254,21 +332,46 @@ export function ProfileSettings({
           ) : null}
         </section>
 
+        {/* Gmail & Outreach Configuration */}
         <section aria-labelledby="gmail-heading" className="border-t border-[#332d2418] pt-5">
           <h2 id="gmail-heading" className="text-[17px] tracking-[-0.02em]" style={{ fontFamily: 'CooperLtBT, Fraunces, Georgia, serif' }}>Outreach &amp; Email</h2>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-[#e2dbcf] bg-white/45 p-4">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-[#e4ddd2] bg-white text-[#a92230] shadow-sm">
-                <Mail size={16} />
-              </span>
-              <div className="min-w-0">
-                <p className="truncate text-[12px] font-semibold text-[#241f19]">{email || "Google account"}</p>
-                <p className="mt-0.5 text-[10px] text-[#8a8073]">Connected account · Dispatch pitches via Gmail Web or background API</p>
+          
+          <div className="mt-3 rounded-[12px] border border-[#e2dbcf] bg-white/45 p-4 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                {/* Official Gmail Logo */}
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-[#e4ddd2] bg-white shadow-sm p-1.5">
+                  <GmailLogo className="size-full" />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-[12px] font-semibold text-[#241f19]">{email || "Google account"}</p>
+                  <p className="mt-0.5 text-[10px] text-[#8a8073]">Connected account · Dispatch pitches via Gmail Web or background API</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {gmailConnected ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-md border border-[#2c7448]/30 bg-[#e7f5ea] px-3 py-1.5 text-[10px] font-semibold text-[#2c7448]">
+                    <Check size={12} />
+                    Auto Send Authorized
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={busy === "connect_gmail"}
+                    onClick={() => void connectGmailForAutoSend()}
+                    className="inline-flex items-center gap-1.5 rounded-[8px] border border-[#a92230] bg-[#a92230] px-3 py-1.5 text-[10px] font-semibold text-white shadow-sm transition hover:bg-[#8e1b26] active:translate-y-px disabled:opacity-60"
+                  >
+                    {busy === "connect_gmail" ? <LoaderCircle size={12} className="animate-spin" /> : <GmailLogo className="size-3.5 brightness-0 invert" />}
+                    <span>Connect Gmail for Auto Send</span>
+                  </button>
+                )}
               </div>
             </div>
-            <span className="rounded-md border border-[#2c7448]/30 bg-[#e7f5ea] px-2.5 py-1 text-[9px] font-semibold text-[#2c7448]">
-              Ready for outreach
-            </span>
+
+            <div className="mt-3 border-t border-[#332d2410] pt-2.5 text-[10px] text-[#7d7367]">
+              <span className="font-semibold text-[#241f19]">Sending Options:</span> &quot;Open in Gmail Web/App&quot; works immediately without setup. Connecting your Gmail enables &quot;Auto Send to Mail&quot; with resume attached automatically.
+            </div>
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-4 border-t border-[#332d2412] pt-3">

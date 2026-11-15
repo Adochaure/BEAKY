@@ -306,9 +306,9 @@ export function OutreachReview({
     } catch (caught) {
       const msg = caught instanceof Error ? caught.message : String(caught);
       if (msg.toLowerCase().includes("access_denied") || msg.toLowerCase().includes("verification") || msg.toLowerCase().includes("denied") || msg.toLowerCase().includes("cancelled")) {
-        setError("Google OAuth is in 'Testing' mode. To send right now without Google Cloud setup, click 'Open in Gmail'. To enable 1-click background API sending, add your email to 'Test users' in Google Cloud Console.");
+        setError("Google permission needed for Auto Send. Click 'Open in Gmail' to send right now (remember to attach resume), or authorize Gmail in Profile to enable Auto Send to Mail.");
       } else {
-        setError(msg || "Could not send via Gmail API. Try 'Open in Gmail'.");
+        setError(msg || "Could not auto-send via Gmail. Try 'Open in Gmail'.");
       }
       setDraftStatus("draft");
     } finally {
@@ -546,18 +546,10 @@ export function OutreachReview({
               )}
             </div>
 
-            <div className="flex items-start gap-2 rounded-lg bg-[#f9f7f4] border border-[#ded7cb]/80 p-2 text-[10px] text-[#514a40]">
-              <Info size={13} className="text-[#81786d] shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 rounded-lg bg-[#fff8eb] border border-[#f3ddad] p-2.5 text-[10px] text-[#7d5612]">
+              <Info size={13} className="text-[#b27b1a] shrink-0 mt-0.5" />
               <span>
-                {isMobile ? (
-                  <>
-                    <strong>Mobile quick send:</strong> Click <strong>&quot;Open in Gmail App&quot;</strong> to open your phone&apos;s Gmail app with your resume attached, or copy to send anywhere.
-                  </>
-                ) : (
-                  <>
-                    <strong>Two ways to send:</strong> Click <strong>&quot;Open in Gmail Web&quot;</strong> for zero-setup instant sending in your browser, or use <strong>&quot;API Send&quot;</strong> if you are a whitelisted Google Cloud tester.
-                  </>
-                )}
+                <strong>Important note:</strong> If sending via <strong>{isMobile ? "Open in Gmail App" : "Open in Gmail Web"}</strong>, browser security prevents automatic file attachment — please <strong>attach your resume manually</strong> in Gmail before sending. Alternatively, use <strong>Auto Send to Mail</strong> to automatically attach your PDF and dispatch in one click.
               </span>
             </div>
 
@@ -588,17 +580,17 @@ export function OutreachReview({
                   {isMobile ? "Open in Gmail App" : "Open in Gmail Web"}
                 </button>
 
-                {/* Direct Gmail API */}
+                {/* Auto Send via Gmail API */}
                 <Button
                   type="button"
                   variant="outline"
                   size="small"
                   disabled={Boolean(busy) || draftStatus === "sent"}
                   onClick={() => void approveAndSendViaGmail()}
-                  title="Direct background API send (for registered Google Cloud testers)"
+                  title="Auto send with resume attached directly via Gmail API"
                 >
                   {busy === "send" ? <LoaderCircle size={12} className="animate-spin" /> : draftStatus === "sent" ? <Check size={12} /> : <Send size={12} />}
-                  {busy === "send" ? "Sending via API…" : draftStatus === "sent" ? "Sent" : "API Send"}
+                  {busy === "send" ? "Auto Sending…" : draftStatus === "sent" ? "Sent" : "Auto Send to Mail"}
                 </Button>
               </div>
             </div>
