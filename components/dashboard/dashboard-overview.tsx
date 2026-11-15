@@ -34,6 +34,7 @@ function activityLabel(date: Date, range: Range, index: number) {
 }
 
 export function DashboardOverview() {
+  const [userName, setUserName] = useState("");
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [range, setRange] = useState<Range>("Week");
   const [loading, setLoading] = useState(true);
@@ -44,10 +45,21 @@ export function DashboardOverview() {
     async function load() {
       try {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from("opportunities")
-        .select("id, title, company, location, opportunity_type, job_url, description, status, created_at")
-        .order("created_at", { ascending: false });
+      const [{ data, error }, { data: userResult }] = await Promise.all([
+        supabase
+          .from("opportunities")
+          .select("id, title, company, location, opportunity_type, job_url, description, status, created_at")
+          .order("created_at", { ascending: false }),
+        supabase.auth.getUser(),
+      ]);
+      if (!active) return;
+      if (userResult?.user) {
+        const rawName = userResult.user.user_metadata?.full_name || userResult.user.user_metadata?.name || userResult.user.email?.split("@")[0] || "";
+        if (rawName) {
+          const first = rawName.trim().split(/\s+/)[0];
+          setUserName(first.charAt(0).toUpperCase() + first.slice(1));
+        }
+      }
       if (!active) return;
       if (error) {
         setLoadError(true);
@@ -174,7 +186,7 @@ export function DashboardOverview() {
           className="mt-2 text-[clamp(2.15rem,4vw,2.9rem)] leading-[1.08] tracking-[-0.045em] text-[#171411]"
           style={{ fontFamily: 'CooperLtBT, Fraunces, Georgia, serif' }}
         >
-          What&apos;s up, Aditya.
+          What&apos;s up{userName ? `, ${userName}` : ""}.
         </h1>
         <p className="mt-2 text-sm text-[#766f67]">Here&apos;s what&apos;s happening with your outreach.</p>
       </div>

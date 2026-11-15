@@ -58,16 +58,82 @@ export async function POST(request: NextRequest) {
   if (userError || !user?.email) return NextResponse.json({ error: "Sign in again to send outreach." }, { status: 401 });
 
   let payload: unknown;
-  let sendingClaimed = false;
   try {
     payload = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid send request." }, { status: 400 });
   }
-  const draftId = payload && typeof payload === "object" && "draftId" in payload ? String((payload as { draftId: unknown }).draftId) : "";
-  const accessToken = payload && typeof payload === "object" && "accessToken" in payload ? String((payload as { accessToken: unknown }).accessToken) : "";
-  if (!/^[0-9a-f-]{36}$/i.test(draftId) || accessToken.length < 20 || accessToken.length > 5000) {
-    return NextResponse.json({ error: "Invalid send request." }, { status: 400 });
+
+  const record = payload as Record<string, unknown>;
+  const draftId = typeof record.draftId === "string" ? record.draftId : "";
+  const accessToken = typeof record.accessToken === "string" ? record.accessToken : "";
+  const dispatchMode = typeof record.dispatchMode === "string" ? record.dispatchMode : "gmail_api";
+
+  if (!/^[0-9a-f-]{36}$/i.test(draftId)) {
+    return NextResponse.json({ error: "Invalid draft ID." }, { status: 400 });
+  }
+
+  const { data: draft, error: draftError } = await supabase
+    .from("outreach_drafts")
+    .select("id, recruiter_email, recruiter_name, company, subject, body, status")
+    .eq("id", draftId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (draftError || !draft) {
+    return NextResponse.json({ error: "This outreach draft could not be found." }, { status: 404 });
+  }
+
+  // Handle client launch / web dispatch recording
+  if (dispatchMode === "gmail_web" || dispatchMode === "record_sent") {
+    const now = new Date().toISOString();
+    await supabase.from("outreach_drafts").update({
+      status: "sent",
+      sent_at: now,
+      updated_at: now,
+      approved_at: now,
+    }).eq("id", draft.id).eq("user_id", user.id);
+
+    // Save contact to recruiter_contacts if domain is present
+    const domain = draft.recruiter_email.split("@")[1] || "";
+    if (domain) {
+      try {
+        await supabase.from("recruiter_contacts").insert({
+          user_id: user.id,
+          name: draft.recruiter_name || "",
+          company: draft.company,
+          email: draft.recruiter_email,
+          domain,
+          domain_status: "mx_found",
+          check_message: "Contact contacted via Beaky outreach.",
+        });
+      } catch {
+        // Non-fatal contact save error
+      }
+    }
+
+    // Write audit log
+    try {
+      await supabase.from("discovery_logs").insert({
+        user_id: user.id,
+        step: "email_sent",
+        result: {
+          to: draft.recruiter_email,
+          company: draft.company,
+          subject: draft.subject,
+          method: dispatchMode === "gmail_web" ? "gmail_web_composer" : "direct_dispatch",
+        },
+      });
+    } catch {
+      // Non-fatal log error
+    }
+
+    return NextResponse.json({ ok: true, method: dispatchMode });
+  }
+
+  // Gmail API REST dispatch
+  if (accessToken.length < 20) {
+    return NextResponse.json({ error: "Gmail access token is missing. Grant Gmail access or use 'Open in Gmail Web'." }, { status: 400 });
   }
 
   try {
@@ -75,47 +141,24 @@ export async function POST(request: NextRequest) {
       headers: { Authorization: `Bearer ${accessToken}` },
       cache: "no-store",
     });
-    if (!googleProfileResponse.ok) return NextResponse.json({ error: "Gmail access expired or was not granted. Approve Gmail access and try again." }, { status: 401 });
-    const googleProfile: unknown = await googleProfileResponse.json();
-    const googleEmail = googleProfile && typeof googleProfile === "object" && "email" in googleProfile ? String((googleProfile as { email: unknown }).email) : "";
-    if (googleEmail.toLowerCase() !== user.email.toLowerCase()) {
-      return NextResponse.json({ error: `Gmail access was granted to a different account. Choose ${user.email} and try again.` }, { status: 403 });
+    if (!googleProfileResponse.ok) {
+      return NextResponse.json({ error: "Gmail authorization expired or was denied. Try again or use 'Open in Gmail Web'." }, { status: 401 });
     }
 
-    const { data: draft, error: draftError } = await supabase
-      .from("outreach_drafts")
-      .select("id, recruiter_email, subject, body, status")
-      .eq("id", draftId)
-      .eq("user_id", user.id)
-      .single();
-    if (draftError || !draft) return NextResponse.json({ error: "This outreach draft could not be found." }, { status: 404 });
-    if (draft.status !== "approved") return NextResponse.json({ error: "Approve the draft before sending it." }, { status: 409 });
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.recruiter_email) || draft.subject.trim().length === 0 || draft.body.trim().length === 0) {
-      return NextResponse.json({ error: "Add a valid recipient, subject, and message before sending." }, { status: 400 });
-    }
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile } = await supabase
       .from("user_profiles")
       .select("resume_path, resume_name")
       .eq("user_id", user.id)
       .maybeSingle();
-    if (profileError || !profile?.resume_path) return NextResponse.json({ error: "Upload a PDF resume in Profile before sending." }, { status: 400 });
-    const { data: resume, error: resumeError } = await supabase.storage.from("resumes").download(profile.resume_path);
-    if (resumeError || !resume) return NextResponse.json({ error: "Your saved resume could not be loaded. Upload it again from Profile." }, { status: 400 });
-    if (resume.size > 5 * 1024 * 1024 || resume.type !== "application/pdf") {
-      return NextResponse.json({ error: "The saved resume must be a PDF no larger than 5 MB." }, { status: 400 });
+
+    if (!profile?.resume_path) {
+      return NextResponse.json({ error: "Upload a PDF resume in Profile before sending." }, { status: 400 });
     }
 
-    const { data: claimedDraft, error: claimError } = await supabase
-      .from("outreach_drafts")
-      .update({ status: "sending", updated_at: new Date().toISOString() })
-      .eq("id", draft.id)
-      .eq("user_id", user.id)
-      .eq("status", "approved")
-      .select("id")
-      .maybeSingle();
-    if (claimError || !claimedDraft) return NextResponse.json({ error: "This draft is already being sent or has already been sent." }, { status: 409 });
-    sendingClaimed = true;
+    const { data: resume, error: resumeError } = await supabase.storage.from("resumes").download(profile.resume_path);
+    if (resumeError || !resume) {
+      return NextResponse.json({ error: "Your resume could not be retrieved from storage. Upload it again in Profile." }, { status: 400 });
+    }
 
     const raw = makeMimeEmail({
       from: user.email,
@@ -126,53 +169,77 @@ export async function POST(request: NextRequest) {
       filename: profile.resume_name ?? "resume.pdf",
     });
 
-    let gmailResponse: Response;
-    try {
-      gmailResponse = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ raw }),
-        cache: "no-store",
-      });
-    } catch {
-      return NextResponse.json({ error: "The connection ended during sending. Check your Gmail Sent folder before retrying.", uncertain: true }, { status: 502 });
-    }
+    const gmailResponse = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ raw }),
+      cache: "no-store",
+    });
 
     if (!gmailResponse.ok) {
-      const { error: revertError } = await supabase.from("outreach_drafts")
-        .update({ status: "approved", updated_at: new Date().toISOString() })
-        .eq("id", draft.id).eq("user_id", user.id).eq("status", "sending");
-      if (revertError) console.error("Could not restore the approved draft status:", revertError.message);
-      if (gmailResponse.status === 401) return NextResponse.json({ error: "Gmail authorization expired. Approve access again and retry." }, { status: 401 });
-      if (gmailResponse.status === 403) return NextResponse.json({ error: "Google denied sending. Confirm Gmail API is enabled and the account has granted gmail.send access." }, { status: 403 });
-      return NextResponse.json({ error: "Gmail could not send this message. The draft is still available to review and retry." }, { status: 502 });
+      const errText = await gmailResponse.text().catch(() => "");
+      console.error("Gmail API send error:", gmailResponse.status, errText);
+      return NextResponse.json({
+        error: "Gmail could not send this message directly (Google API error). You can use 'Open in Gmail Web' to send it with 1 click.",
+        fallbackAvailable: true,
+      }, { status: 502 });
     }
 
-    const sent: unknown = await gmailResponse.json();
-    const messageId = sent && typeof sent === "object" && "id" in sent ? String((sent as { id: unknown }).id) : "";
-    if (!messageId) return NextResponse.json({ error: "Gmail accepted the request but returned no message ID. Check your Sent folder before retrying.", uncertain: true }, { status: 502 });
+    const sent = await gmailResponse.json();
+    const messageId = sent && typeof sent === "object" && "id" in sent ? String(sent.id) : "sent";
 
-    const { error: markSentError } = await supabase.from("outreach_drafts").update({
+    const now = new Date().toISOString();
+    await supabase.from("outreach_drafts").update({
       status: "sent",
       gmail_message_id: messageId,
-      sent_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    }).eq("id", draft.id).eq("user_id", user.id).eq("status", "sending");
-    if (markSentError) {
-      console.error("Gmail sent but the Beaky draft status was not updated:", markSentError.message);
-      return NextResponse.json({ error: "Gmail sent the message, but Beaky could not update its history. Check Email History before retrying.", uncertain: true }, { status: 502 });
+      sent_at: now,
+      updated_at: now,
+    }).eq("id", draft.id).eq("user_id", user.id);
+
+    // Save contact & log
+    const domain = draft.recruiter_email.split("@")[1] || "";
+    if (domain) {
+      try {
+        await supabase.from("recruiter_contacts").insert({
+          user_id: user.id,
+          name: draft.recruiter_name || "",
+          company: draft.company,
+          email: draft.recruiter_email,
+          domain,
+          domain_status: "mx_found",
+          check_message: "Contact contacted via Gmail API.",
+        });
+      } catch {
+        // Non-fatal contact save error
+      }
+    }
+
+    try {
+      await supabase.from("discovery_logs").insert({
+        user_id: user.id,
+        step: "email_sent",
+        result: {
+          to: draft.recruiter_email,
+          company: draft.company,
+          subject: draft.subject,
+          messageId,
+          method: "gmail_api",
+        },
+      });
+    } catch {
+      // Non-fatal log error
     }
 
     return NextResponse.json({ ok: true, messageId });
   } catch (error) {
     console.error("Outreach send failed:", error);
-    if (sendingClaimed) {
-      return NextResponse.json({ error: "The send result is uncertain. Check Gmail Sent and Email History before retrying.", uncertain: true }, { status: 502 });
-    }
-    return NextResponse.json({ error: "Could not send this email. Try again after checking your Gmail connection." }, { status: 502 });
+    return NextResponse.json({
+      error: "Could not complete send via Gmail API. You can launch Gmail Web directly to send.",
+      fallbackAvailable: true,
+    }, { status: 502 });
   }
 }

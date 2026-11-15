@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-export function SignOutButton() {
+export function SignOutButton({ className }: { className?: string }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -31,9 +31,12 @@ export function SignOutButton() {
         type="button"
         disabled={pending}
         onClick={signOut}
-        className="mt-2 inline-flex items-center gap-1.5 rounded-md text-[9px] text-[#aaa] transition hover:text-white focus-visible:outline-2 focus-visible:outline-white"
+        className={
+          className ??
+          "mt-2 inline-flex items-center gap-1.5 rounded-[6px] border border-[#e63946]/35 bg-[#e63946]/10 px-2.5 py-1 text-[10px] font-semibold text-[#e63946] transition hover:bg-[#e63946] hover:text-white focus-visible:outline-2 focus-visible:outline-[#e63946] disabled:opacity-50"
+        }
       >
-        <LogOut size={11} />
+        <LogOut size={12} />
         {pending ? "Signing out…" : "Sign out"}
       </button>
       {error ? <span role="alert" className="mt-1 block text-[9px] text-[#ff9f97]">{error}</span> : null}
