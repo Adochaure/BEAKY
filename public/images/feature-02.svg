@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="sky-blue-grad-02" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#12487e" />
+      <stop offset="25%" stopColor="#1b63a5" />
+      <stop offset="60%" stopColor="#3187cb" />
+      <stop offset="100%" stopColor="#7cb6e4" />
+    </linearGradient>
+    <linearGradient id="cloud-shadow-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#ccdbe8" />
+      <stop offset="100%" stopColor="#f3eee3" />
+    </linearGradient>
+  </defs>
+
+  <!-- Deep Japanese Indigo / Azure Gradient Sky -->
+  <rect width="400" height="400" fill="url(#sky-blue-grad-02)" />
+
+  <!-- Distant High Altocumulus Ripples -->
+  <g stroke="#ffffff" strokeWidth="2.5" fill="none" opacity="0.35" strokeLinecap="round">
+    <path d="M-10 40 Q40 32 90 38 Q140 44 200 36 Q260 28 320 35 Q370 42 410 36" />
+    <path d="M20 58 Q70 50 130 55 Q190 60 250 52 Q310 45 380 54" />
+    <path d="M-20 78 Q50 68 110 74 Q170 80 240 70 Q300 62 370 72" />
+  </g>
+
+  <!-- Upper Tier Woodblock Clouds -->
+  <path
+    d="M-20 120 Q30 85 90 105 Q150 75 220 100 Q280 75 350 105 Q385 90 420 115 L420 160 Q360 145 290 155 Q210 135 140 150 Q60 135 -20 160 Z"
+    fill="#f2ecde"
+    stroke="#225380"
+    strokeWidth="1.8"
+  />
+  <path
+    d="M-10 135 Q40 105 100 125 Q160 98 230 120 Q290 98 360 125 L410 138"
+    stroke="#c5d5e4"
+    strokeWidth="2.5"
+    fill="none"
+  />
+
+  <!-- Mid Sky Clear Azure Rift -->
+  <path d="M40 185 Q120 168 220 182 Q300 172 370 190" stroke="#a0c8e8" strokeWidth="3" fill="none" opacity="0.6" />
+
+  <!-- Huge Billowing Low Cumulus Cloud Bank (Center Stage) -->
+  <!-- Base Shadow Layer -->
+  <path
+    d="M-20 230 Q40 180 110 205 Q180 165 260 195 Q330 170 420 215 L420 310 Q340 285 250 300 Q160 275 80 295 Q10 280 -20 310 Z"
+    fill="url(#cloud-shadow-grad)"
+    stroke="#1b4972"
+    strokeWidth="2"
+  />
+
+  <!-- Brilliant White Main Cloud Billows -->
+  <path
+    d="M-20 260 Q30 205 95 230 Q160 190 235 220 Q300 195 380 235 Q405 225 420 245 L420 420 L-20 420 Z"
+    fill="#ffffff"
+  />
+
+  <!-- Woodblock Inked Contours and Shading Folds -->
+  <path d="M10 250 Q65 220 120 245" stroke="#1d4d77" strokeWidth="2" fill="none" strokeLinecap="round" />
+  <path d="M135 235 Q185 205 240 230" stroke="#1d4d77" strokeWidth="2" fill="none" strokeLinecap="round" />
+  <path d="M255 230 Q315 205 375 240" stroke="#1d4d77" strokeWidth="2" fill="none" strokeLinecap="round" />
+
+  <!-- Cloud Volume Inner Rings -->
+  <path d="M30 275 Q80 250 140 270 M160 260 Q215 240 270 265 M280 265 Q335 245 385 272" stroke="#dbe5ed" strokeWidth="3" fill="none" />
+  <path d="M-10 330 Q60 295 150 320 Q240 290 320 315 Q370 300 420 330" stroke="#ccd9e4" strokeWidth="2" fill="none" />
+
+  <!-- Warm Sunlit Rim on Bottom Cloud Deck -->
+  <path
+    d="M-20 350 Q50 315 130 335 Q210 305 290 330 Q350 315 420 345 L420 420 L-20 420 Z"
+    fill="#f9f6ed"
+  />
+  <path d="M15 365 Q85 340 165 360 M200 355 Q275 335 350 355" stroke="#e3dcce" strokeWidth="2.5" fill="none" />
+</svg>

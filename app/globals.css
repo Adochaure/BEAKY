@@ -40,6 +40,19 @@ a {
   animation: beaky-enter 180ms ease-out both;
 }
 
+.doto-variable {
+  font-family: var(--font-doto), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.stamp-drop-shadow {
+  filter: drop-shadow(0 14px 28px rgba(20, 19, 18, 0.12));
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.stamp-drop-shadow:hover {
+  filter: drop-shadow(0 20px 36px rgba(20, 19, 18, 0.2));
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

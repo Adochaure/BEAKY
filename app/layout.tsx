@@ -10,9 +10,9 @@ const doto = Doto({
 });
 
 export const metadata: Metadata = {
-  title: "Beaky — Find your way in",
+  title: "Beaky — Autonomous Cold Email & Recruiter Outreach Agent",
   description:
-    "Find the right opportunity, reach the right person, and put your best self forward with Beaky. Thoughtful outreach, always on your terms.",
+    "Autonomous cold email agent that discovers verified engineering roles, validates recruiter emails via live DNS MX checks, and dispatches bespoke 1-to-1 cold emails with resume attached via Gmail API.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

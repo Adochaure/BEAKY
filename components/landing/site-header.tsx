@@ -1,16 +1,46 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Menu } from "lucide-react";
+import { useEffect, useState } from "react";
 import { ButtonLink } from "@/components/ui/button-link";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 const links = [
   { label: "Features", href: "/features" },
   { label: "How it works", href: "/how-it-works" },
   { label: "About us", href: "/about" },
-  { label: "Workspace", href: "/dashboard" },
 ];
 
 export function SiteHeader() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    try {
+      const supabase = createClient();
+
+      supabase.auth.getSession().then(({ data }) => {
+        setIsAuthenticated(Boolean(data.session?.user));
+      });
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setIsAuthenticated(Boolean(session?.user));
+      });
+
+      return () => subscription.unsubscribe();
+    } catch {
+      setIsAuthenticated(false);
+    }
+  }, []);
+
+  const ctaHref = isAuthenticated ? "/dashboard" : "/get-started";
+  const ctaLabel = isAuthenticated ? "Dashboard" : "Get started";
+
   return (
     <header className="sticky top-0 z-50 border-b border-[#172b3212] bg-[#f1faee]/75 backdrop-blur-xl">
       <div className="mx-auto flex min-h-[68px] w-[min(1000px,calc(100%-48px))] items-center max-sm:min-h-0 max-sm:w-[calc(100%-32px)] max-sm:flex-wrap max-sm:py-2">
@@ -21,7 +51,7 @@ export function SiteHeader() {
         >
           <Image
             src="https://ik.imagekit.io/adochaure/c2109e83-c24d-4008-bb62-d600bf9ad7d5.png"
-            alt=""
+            alt="Beaky"
             width={32}
             height={32}
             priority
@@ -54,11 +84,11 @@ export function SiteHeader() {
         <div className="ml-0 flex items-center gap-2 max-sm:ml-auto">
           <ButtonLink
             className="group text-white"
-            href="/get-started"
+            href={ctaHref}
             size="small"
             style={{ color: "#ffffff" }}
           >
-            Get started
+            {ctaLabel}
             <ArrowUpRight
               aria-hidden="true"
               size={13}
@@ -84,6 +114,13 @@ export function SiteHeader() {
                   {link.label}
                 </a>
               ))}
+              <div className="my-1 border-t border-[#172b3212]" />
+              <a
+                className="rounded-lg px-3 py-2 text-xs font-semibold text-[#a92230] transition-colors hover:bg-black/5"
+                href={ctaHref}
+              >
+                {ctaLabel} →
+              </a>
             </div>
           </details>
         </div>

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="mist-sky-03" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#dbe4dc" />
+      <stop offset="60%" stopColor="#ede6d6" />
+      <stop offset="100%" stopColor="#f5efe4" />
+    </linearGradient>
+    <linearGradient id="hill-grad-1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#5d7557" />
+      <stop offset="100%" stopColor="#43563e" />
+    </linearGradient>
+  </defs>
+
+  <!-- Soft Misty Mountain Morning Sky -->
+  <rect width="400" height="400" fill="url(#mist-sky-03)" />
+
+  <!-- Layer 1: Distant Misty Ridge Silhouettes -->
+  <path d="M-20 120 Q70 60 170 105 Q270 45 420 115 L420 400 L-20 400 Z" fill="#6d8370" opacity="0.4" />
+  <path d="M-20 150 Q90 100 200 145 Q300 85 420 140 L420 400 L-20 400 Z" fill="#546e50" opacity="0.6" />
+
+  <!-- Layer 2: Middle Forest Ridges -->
+  <path d="M-20 185 Q70 145 160 175 Q260 135 420 180 L420 400 L-20 400 Z" fill="#465c40" />
+
+  <!-- Layer 3: Terraced Hills & Rice/Tea Fields (Stepped Contour Terraces) -->
+  <path d="M-20 220 Q80 180 190 205 Q300 175 420 215 L420 400 L-20 400 Z" fill="#69874e" />
+  <path d="M-20 250 Q90 210 210 235 Q320 205 420 245 L420 400 L-20 400 Z" fill="#7a9b5c" />
+  <path d="M-20 280 Q100 245 230 270 Q340 235 420 275 L420 400 L-20 400 Z" fill="#8eae6d" />
+  <path d="M-20 315 Q110 280 240 305 Q350 270 420 310 L420 400 L-20 400 Z" fill="#9fbe7e" />
+  <path d="M-20 350 Q120 315 260 340 Q360 305 420 345 L420 400 L-20 400 Z" fill="#b1ce8f" />
+
+  <!-- Dark Stone/Mud Terrace Retaining Wall Contours (Woodblock Linework) -->
+  <g stroke="#37482b" strokeWidth="2" fill="none" opacity="0.75">
+    <path d="M-10 220 Q85 182 190 206 Q300 176 410 216" />
+    <path d="M-10 250 Q95 212 210 236 Q320 206 410 246" />
+    <path d="M-10 280 Q105 246 230 271 Q340 236 410 276" />
+    <path d="M-10 315 Q115 281 240 306 Q350 271 410 311" />
+    <path d="M-10 350 Q125 316 260 341 Q360 306 410 346" />
+  </g>
+
+  <!-- Terrace Water Reflections / Subtle Shading -->
+  <g stroke="#dceacb" strokeWidth="1.5" fill="none" opacity="0.6">
+    <path d="M20 235 Q90 205 160 220" />
+    <path d="M30 265 Q110 235 190 252" />
+    <path d="M50 300 Q140 270 230 288" />
+  </g>
+
+  <!-- Grove of Trees on Right Bluff -->
+  <g fill="#2d3f25">
+    <circle cx="340" cy="240" r="22" />
+    <circle cx="365" cy="225" r="26" />
+    <circle cx="388" cy="245" r="20" />
+    <circle cx="330" cy="280" r="24" />
+    <circle cx="360" cy="275" r="28" />
+    <circle cx="395" cy="285" r="25" />
+    <circle cx="320" cy="330" r="26" />
+    <circle cx="350" cy="325" r="30" />
+    <circle cx="385" cy="335" r="24" />
+  </g>
+  <g fill="#3e5734" opacity="0.85">
+    <circle cx="343" cy="237" r="17" />
+    <circle cx="368" cy="222" r="21" />
+    <circle cx="333" cy="277" r="19" />
+    <circle cx="363" cy="272" r="22" />
+    <circle cx="323" cy="327" r="21" />
+    <circle cx="353" cy="322" r="24" />
+  </g>
+
+  <!-- Traditional Thatched Japanese Farmhouse Huts (Shin-Hanga Style) -->
+  <!-- Upper Hut -->
+  <polygon points="310,210 338,190 366,210" fill="#38281a" />
+  <polygon points="313,209 338,192 363,209" fill="#5c432d" />
+  <rect x="318" y="210" width="40" height="25" fill="#78593c" />
+  <rect x="330" y="218" width="16" height="17" fill="#261b11" />
+  <!-- Small side annex -->
+  <polygon points="358,216 375,206 385,216" fill="#4d3725" />
+  <rect x="362" y="216" width="20" height="19" fill="#694e34" />
+
+  <!-- Lower Thatched Cottage -->
+  <polygon points="280,315 315,290 350,315" fill="#302014" />
+  <polygon points="284,314 315,293 346,314" fill="#523a26" />
+  <rect x="290" y="315" width="50" height="32" fill="#6e5035" />
+  <rect x="306" y="325" width="20" height="22" fill="#1f140c" />
+  <!-- Shōji paper window slit -->
+  <rect x="332" y="322" width="6" height="12" fill="#f0e9db" opacity="0.85" />
+</svg>

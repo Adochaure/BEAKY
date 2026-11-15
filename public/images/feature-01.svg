@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="sky-grad-01" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#dce8e1" />
+      <stop offset="55%" stopColor="#f5eedb" />
+      <stop offset="100%" stopColor="#e8dfcb" />
+    </linearGradient>
+    <linearGradient id="sea-grad-01" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#2b7588" />
+      <stop offset="45%" stopColor="#3d8e9e" />
+      <stop offset="100%" stopColor="#1a4c5b" />
+    </linearGradient>
+    <linearGradient id="mist-01" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.4" />
+      <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="400" height="220" fill="url(#sky-grad-01)" />
+
+  <!-- Distant Blue Mountains -->
+  <path d="M-20 220 Q60 170 140 210 Q220 160 300 210 Q360 180 420 220 L420 220 L-20 220 Z" fill="#9db0a5" opacity="0.65" />
+  <path d="M40 220 Q120 185 200 215 Q280 175 380 220 Z" fill="#b8c8be" opacity="0.5" />
+
+  <!-- Sea -->
+  <rect y="200" width="400" height="200" fill="url(#sea-grad-01)" />
+
+  <!-- Sea Shimmer / Woodblock Waves -->
+  <path d="M20 235 Q70 231 120 235 M160 248 Q230 244 300 248 M40 270 Q130 266 220 270 M250 285 Q330 281 400 285" stroke="#7ec3cc" strokeWidth="1.8" fill="none" opacity="0.6" />
+  <path d="M10 320 Q90 316 180 320 M210 338 Q290 334 370 338 M60 365 Q160 361 260 365" stroke="#5cb2bd" strokeWidth="1.8" fill="none" opacity="0.5" />
+
+  <!-- Coastal Green Islets / Bluffs -->
+  <!-- Left Island -->
+  <path d="M-10 400 Q40 290 110 305 Q180 320 220 400 Z" fill="#4d6f3b" />
+  <path d="M-5 400 Q45 305 105 315 Q165 330 195 400 Z" fill="#5f8647" />
+  <!-- Left Island Sand Bluff -->
+  <path d="M-10 400 Q35 345 90 360 Q150 375 190 400 Z" fill="#c49b66" opacity="0.8" />
+  <path d="M-10 400 Q20 370 70 380 Q120 390 150 400 Z" fill="#a87f4f" opacity="0.8" />
+
+  <!-- Right Island -->
+  <path d="M210 400 Q270 310 340 325 Q390 340 420 400 Z" fill="#3c592e" />
+  <path d="M230 400 Q285 325 345 335 Q385 350 415 400 Z" fill="#4d6f3b" />
+  <!-- Right Island Sand Bluff -->
+  <path d="M220 400 Q270 360 330 372 Q380 385 415 400 Z" fill="#b58d59" opacity="0.8" />
+
+  <!-- Water Mist Layer -->
+  <rect y="195" width="400" height="35" fill="url(#mist-01)" />
+
+  <!-- Iconic Japanese Coastal Pine (Shin-Hanga Style) -->
+  <!-- Main Trunk & Branch -->
+  <path d="M420 80 Q300 45 210 110 Q145 155 85 140" stroke="#2e2116" strokeWidth="11" strokeLinecap="round" fill="none" />
+  <path d="M245 85 Q195 125 150 115" stroke="#2e2116" strokeWidth="6" strokeLinecap="round" fill="none" />
+  <path d="M175 135 Q135 170 100 160" stroke="#2e2116" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+  <path d="M320 62 Q270 95 240 90" stroke="#2e2116" strokeWidth="5" strokeLinecap="round" fill="none" />
+
+  <!-- Pine Needles Clusters (Woodblock Radiating Layers) -->
+  <g fill="#214227">
+    <ellipse cx="85" cy="140" rx="28" ry="16" />
+    <ellipse cx="150" cy="115" rx="36" ry="20" />
+    <ellipse cx="210" cy="110" rx="42" ry="22" />
+    <ellipse cx="270" cy="85" rx="48" ry="24" />
+    <ellipse cx="340" cy="65" rx="54" ry="26" />
+  </g>
+  <g fill="#2c5834">
+    <ellipse cx="90" cy="137" rx="24" ry="13" />
+    <ellipse cx="155" cy="111" rx="30" ry="16" />
+    <ellipse cx="216" cy="106" rx="35" ry="18" />
+    <ellipse cx="278" cy="80" rx="40" ry="20" />
+    <ellipse cx="348" cy="60" rx="46" ry="21" />
+  </g>
+  <g fill="#3d7247" opacity="0.85">
+    <ellipse cx="93" cy="134" rx="18" ry="9" />
+    <ellipse cx="158" cy="108" rx="22" ry="11" />
+    <ellipse cx="220" cy="102" rx="26" ry="13" />
+    <ellipse cx="282" cy="76" rx="30" ry="14" />
+    <ellipse cx="352" cy="56" rx="34" ry="15" />
+  </g>
+
+  <!-- Tiny Fishing Skiff on Calm Waters -->
+  <path d="M190 255 Q205 258 220 255 L215 252 L195 252 Z" fill="#2d2218" />
+  <line x1="205" y1="252" x2="205" y2="242" stroke="#2d2218" strokeWidth="1" />
+</svg>
